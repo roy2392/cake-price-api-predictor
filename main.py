@@ -24,7 +24,7 @@ preprocessing = Preprocessing(preprocessing_config)
 modelManager = Model(model_config)
 input_params = ['Radius [cm]', 'Layers', 'Topping']
 
-@app.route('/predict', methods=['GET'])
+@app.route('/predict', methods=['POST'])
 def getPredict():
     request_bbody = request.get_json()
     schema = RequestSchema()
@@ -43,6 +43,15 @@ def getPredict():
     process_dataset = preprocessing.preprocess(dataset)
     result = modelManager.predict(process_dataset)
     return jsonify({"predict_result":int(result)}, 200)
+
+@app.route('/toppings', methods=['POST'])
+def getToppings():
+    return jsonify({"toppings":inputManager.get_toppings()}, 200)
+
+@app.route('/model-info', methods=['GET'])
+def getModelInfo():
+    return jsonify({"model_info":modelManager.get_info()}, 200)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=9999)
