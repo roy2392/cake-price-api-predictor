@@ -1,4 +1,4 @@
-from mashmallow import Schema, fields, validateError
+from marshmallow import Schema, fields, validateError
 
 class RequestSchema(Schema):
     radius = fields.Float(required=True)
