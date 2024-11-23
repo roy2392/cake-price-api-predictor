@@ -6,25 +6,32 @@ from src.preprocessing import Preprocessing
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify
 import pandas as pd
-
+import sys
+import os
 from src.validation import RequestSchema
+import numpy as np
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
+config = {
+        'scaler_file': preprocessing_config.scaler_file,
+        'processing_map': preprocessing_config.processing_map
+}
 
 app = Flask(__name__)
 
-SWAGGER_URL="/swagger"
-API_URL="/static/swagger.json"
+SWAGGER_URL = "/swagger"
+API_URL = "/static/swagger.json"
 
 swagger_ui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL
+        SWAGGER_URL,
+        API_URL
 )
 app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
-
 inputManager = CollectData(data_config)
-preprocessing = Preprocessing(preprocessing_config)
+preprocessing = Preprocessing(config)
 modelManager = Model(model_config)
-inputs_params = ['Radius [cm]', 'Layers', 'Topping']
 
 @app.errorhandler(ValidationError)
 def handle_expected_exception(e):
@@ -34,21 +41,32 @@ def handle_expected_exception(e):
 def getPredict():
     request_body = request.json
     schema = RequestSchema()
-
     try:
-        # Validate request body against schema data types
         result = schema.load(request_body)
     except ValidationError as err:
         return jsonify(err.messages), 400
-
-    dataset = pd.DataFrame([[request_body['Radius [cm]'],
-                            request_body['Layers'],
-                            request_body['Topping']]], columns=inputs_params)
-
-    process_dataset = preprocessing.processData(dataset)
-    result = modelManager.predict(process_dataset)
-    return jsonify({"predict_result": int(result[0])}, 200)
-
+    
+    # Create DataFrame with correct column names
+    dataset = pd.DataFrame({
+            'Radius [cm]': [request_body['radius']],
+            'Layers': [request_body['layers']],
+            'Topping': [request_body['topping']]
+    })
+    
+    process_dataset = preprocessing.process_data(dataset)
+    prediction = modelManager.predict(process_dataset)
+    
+    # Convert numpy array to Python float
+    prediction_value = float(prediction[0])
+    
+    return jsonify({
+            "predict_result": prediction_value,
+            "input_data": {
+                    "radius": request_body['radius'],
+                    "layers": request_body['layers'],
+                    "topping": request_body['topping']
+            }
+    }), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=9999)
+    app.run(host='0.0.0.0', port=3000)

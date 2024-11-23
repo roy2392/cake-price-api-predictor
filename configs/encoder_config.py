@@ -1,3 +1,3 @@
 class EncoderConfig:
     def __init__(self):
-        self.model_path = 'models/One Hot Encoder.pkl'
+        self.model_path = 'models/OneHotEncoder.pkl'

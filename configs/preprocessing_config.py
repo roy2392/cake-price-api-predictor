@@ -1,22 +1,17 @@
+# configs/preprocessing_config.py
 import os
 
-label_encoder_file = os.getenv('label_encoder_file')
-scaler_file = 'models/One Hot Encoder.pkl'
-
+# configs/preprocessing_config.py
 processing_map = {
-        'topping_encoder'    : 'ohe_topping',  # OneHotEncoder for topping
-        'numeric_columns'    : ['Radius [cm]', 'Layers'],  # Numeric features
-        'categorical_columns': ['Topping'],  # Categorical features
-        
-        # Default values for missing data
-        'radius_fillna'      : 17.5,  # Example mean value
-        'layers_fillna'      : 2,  # Example mode value
-        'topping_fillna'     : 'Simple',  # Example most common value
-        
-        # Scaling configuration
-        'scaler_columns'     : ['Radius [cm]', 'Layers'],
-        
-        # Model parameters
-        'test_size'          : 0.2,
-        'random_state'       : 42
+    'topping_encoder': 'models/OneHotEncoder.pkl',
+    'numeric_columns': ['Radius [cm]', 'Layers'],
+    'categorical_columns': ['Topping'],
+    'radius_fillna': 17.5,
+    'layers_fillna': 2,
+    'topping_fillna': 'Simple',
+    'scaler_columns': ['Radius [cm]', 'Layers'],
+    'test_size': 0.2,
+    'random_state': 42
 }
+
+scaler_file = 'models/Standard_Scaler.pkl'

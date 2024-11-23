@@ -1,1 +1,1 @@
-model_path = 'models/Exercise Model.pkl'
+model_path = 'models/model.pkl'
