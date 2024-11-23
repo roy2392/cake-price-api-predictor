@@ -1,5 +1,5 @@
 from configs import data_config, preprocessing_config, model_config
-from marshmallow import ValidationError
+from marshmallow import Schema, fields, ValidationError
 from src.collect_data import CollectData
 from src.model import Model
 from src.preprocessing import Preprocessing
@@ -26,7 +26,11 @@ preprocessing = Preprocessing(preprocessing_config)
 modelManager = Model(model_config)
 inputs_params = ['Radius [cm]', 'Layers', 'Topping']
 
-@app.route('/predict', methods=['GET'])
+@app.errorhandler(ValidationError)
+def handle_expected_exception(e):
+    return jsonify(e.messages), 400
+
+@app.route('/predict', methods=['POST'])
 def getPredict():
     request_body = request.json
     schema = RequestSchema()
@@ -35,16 +39,15 @@ def getPredict():
         # Validate request body against schema data types
         result = schema.load(request_body)
     except ValidationError as err:
-        # Return a nice message if validation fails
         return jsonify(err.messages), 400
 
     dataset = pd.DataFrame([[request_body['Radius [cm]'],
                             request_body['Layers'],
-                            request_body['Topping']]], columns = inputs_params)
+                            request_body['Topping']]], columns=inputs_params)
 
     process_dataset = preprocessing.processData(dataset)
     result = modelManager.predict(process_dataset)
-    return jsonify({"predict_result":int(result[0])}, 200)
+    return jsonify({"predict_result": int(result[0])}, 200)
 
 
 if __name__ == '__main__':

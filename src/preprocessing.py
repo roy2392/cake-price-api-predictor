@@ -5,7 +5,7 @@ import pandas as pd
 
 class Preprocessing:
     def __init__(self, config):
-        self.encoder_file = config.encoder_file
+        self.encoder_file = config.scaler_file
         self.scaler_file = config.scaler_file
         self.processing_map = config.processing_map
     
